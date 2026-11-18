@@ -294,6 +294,9 @@ tbody tr:last-child td{border-bottom:none}
 .login-brand{display:flex;align-items:center;gap:10px;margin-bottom:4px}
 .login-card h1{margin:0;font-size:20px;letter-spacing:-.01em}
 .login-card p{margin:0;color:var(--ink-soft);font-size:13.5px}
+.forgot{align-self:center;font-size:13px;font-weight:600;color:var(--brand)}
+.forgot:hover{text-decoration:underline}
+.login-err:empty{display:none}
 .login-err{color:var(--bad);font-size:13px;min-height:18px}
 .loading{position:fixed;inset:0;display:grid;place-items:center;background:var(--bg);color:var(--ink-soft);z-index:85;font-size:14px}
 .me-row{display:flex;align-items:center;gap:10px;padding:10px 10px 12px}
@@ -786,7 +789,7 @@ function previewFor(id){
 
 function vLocked(id){
   var m=LOCKED[id];
-  return '<div class="locked"><div class="preview">'+previewFor(id)+'</div><div class="veil"><div class="upsell"><div class="badge-row"><span class="plan-pill" style="margin:0">'+esc(m.plan)+'</span>'+ic('lock',15).replace('<svg','<svg class="lock-ico"')+'</div><h2>'+esc(m.title)+'</h2><p>'+esc(m.desc)+'</p><ul>'+m.bullets.map(function(b){return '<li>'+ic('ok',16)+'<span>'+esc(b)+'</span></li>';}).join('')+'</ul><div class="acts"><a class="btn btn-wa" href="'+upgradeLink(m.title)+'" target="_blank" rel="noopener">'+WA_SVG+'Quero liberar este recurso</a><button class="btn btn-ghost" data-nav="pipeline">Voltar ao pipeline</button></div><p style="margin:12px 0 0;font-size:12px;color:var(--ink-faint)">Fale com a Fábrica: +55 47 99945-1527</p></div></div></div>';
+  return '<div class="locked"><div class="preview">'+previewFor(id)+'</div><div class="veil"><div class="upsell"><div class="badge-row"><span class="plan-pill" style="margin:0">'+esc(m.plan)+'</span>'+ic('lock',15).replace('<svg','<svg class="lock-ico"')+'</div><h2>'+esc(m.title)+'</h2><p>'+esc(m.desc)+'</p><ul>'+m.bullets.map(function(b){return '<li>'+ic('ok',16)+'<span>'+esc(b)+'</span></li>';}).join('')+'</ul><div class="acts"><a class="btn btn-wa" href="'+upgradeLink(m.title)+'" target="_blank" rel="noopener">'+WA_SVG+'Quero liberar este recurso</a><button class="btn btn-ghost" data-nav="pipeline">Voltar ao pipeline</button></div></div></div></div>';
 }
 
 function upgradeLink(feature){return 'https://wa.me/'+FABRICA_WA+'?text='+encodeURIComponent('Olá, Fábrica! Estou usando o CRM e quero liberar: '+feature+'. Pode me explicar o plano completo?');}
@@ -824,7 +827,7 @@ function lockPopup(key,customTitle){
 
 function upgradeModal(){
   var feats=['Inbox de WhatsApp com a equipe toda','Agentes de IA com Claude, ChatGPT e Gemini','Assistente de pré-vendas','Disparos em massa segmentados','Automações e fluxos visuais','Integração com ManyChat, Meta Ads e Hotmart','Distribuição automática de leads','Relatórios avançados e metas','Login individual e permissões'];
-  openModal('<div class="m-head">'+ic('crown',20)+'<h3>Plano completo Fábrica</h3><button class="x" data-close="1" aria-label="Fechar">'+ic('x')+'</button></div><div class="m-body"><p style="margin:0 0 14px;color:var(--ink-soft)">Tudo o que você já usa, mais os módulos que fazem a equipe vender sem perder nenhum lead.</p><div class="upsell" style="box-shadow:none;padding:0;border:none;width:100%"><ul>'+feats.map(function(f){return '<li>'+ic('ok',16)+'<span>'+f+'</span></li>';}).join('')+'</ul></div></div><div class="m-foot"><span class="grow" style="font-size:12px;color:var(--ink-faint)">+55 47 99945-1527</span><a class="btn btn-wa" href="'+upgradeLink('o plano completo')+'" target="_blank" rel="noopener">'+WA_SVG+'Falar com a Fábrica</a></div>','sm');
+  openModal('<div class="m-head">'+ic('crown',20)+'<h3>Plano completo Fábrica</h3><button class="x" data-close="1" aria-label="Fechar">'+ic('x')+'</button></div><div class="m-body"><p style="margin:0 0 14px;color:var(--ink-soft)">Tudo o que você já usa, mais os módulos que fazem a equipe vender sem perder nenhum lead.</p><div class="upsell" style="box-shadow:none;padding:0;border:none;width:100%"><ul>'+feats.map(function(f){return '<li>'+ic('ok',16)+'<span>'+f+'</span></li>';}).join('')+'</ul></div></div><div class="m-foot"><span class="grow"></span><a class="btn btn-wa" href="'+upgradeLink('o plano completo')+'" target="_blank" rel="noopener">'+WA_SVG+'Falar com a Fábrica</a></div>','sm');
 }
 
 function leadModal(id){
@@ -976,12 +979,12 @@ window.addEventListener('hashchange',function(){var h=(location.hash||'').slice(
 function showLogin(msg){
   var el=document.createElement('div');el.className='login';el.id='login';
   el.innerHTML='<form class="login-card" id="loginForm"><div class="login-brand"><span class="mark">F</span><span class="word"><b>fábrica<sup>®</sup></b><span>CRM comercial</span></span></div>'+
-    '<h1>Entrar no CRM</h1><p>Use o e-mail e a senha que a Fábrica criou para você.</p>'+
+    
     '<div class="field"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" autocomplete="username" required></div>'+
     '<div class="field"><label for="lgPass">Senha</label><input id="lgPass" type="password" autocomplete="current-password" required></div>'+
     '<div class="login-err" id="lgErr">'+esc(msg||'')+'</div>'+
     '<button class="btn btn-primary" type="submit" id="lgBtn">Entrar</button>'+
-    '<p style="font-size:12.5px">Esqueceu a senha? Fale com a Fábrica: +55 47 99945-1527</p></form>';
+    '<a class="forgot" href="https://wa.me/'+FABRICA_WA+'?text='+encodeURIComponent('Olá, Fábrica! Esqueci minha senha do CRM. Pode me ajudar?')+'" target="_blank" rel="noopener">Esqueci minha senha</a></form>';
   document.body.appendChild(el);
   document.getElementById('loginForm').addEventListener('submit',function(e){
     e.preventDefault();
