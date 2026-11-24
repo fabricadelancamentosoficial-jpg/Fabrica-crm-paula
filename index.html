@@ -395,7 +395,7 @@ var STAGES=[
   {id:'ganho',label:'Fechado: ganho',color:'#1d8a63'},
   {id:'perdido',label:'Perdido',color:'#c24d42'}
 ];
-var ORIGENS=['ManyChat / Instagram','Anúncio Meta','Anúncio Google','WhatsApp direto','Indicação','Site / formulário','Evento','Outro'];
+var ORIGENS=['Aplicação (formulário)','ManyChat / Instagram','Anúncio Meta','Anúncio Google','WhatsApp direto','Indicação','Site / formulário','Evento','Outro'];
 var TEMPS=[{id:'hot',label:'Quente'},{id:'warm',label:'Morno'},{id:'cold',label:'Frio'}];
 var AV_COLORS=['#2a6284','#1d8a63','#b7862b','#6b5bd6','#c24d42','#2fa9a0','#8a5a9e'];
 
@@ -833,7 +833,7 @@ function upgradeModal(){
 function leadModal(id){
   var l=id?state.leads.filter(function(x){return x.id===id;})[0]:null;
   var isNew=!l;
-  var d=l?JSON.parse(JSON.stringify(l)):{id:uid(),name:'',phone:'',email:'',origin:ORIGENS[0],stage:'novo',value:'',temp:'warm',owner:state.me?state.me.id:'',next:todayISO(),tags:[],notes:'',history:[],createdAt:todayISO()};
+  var d=l?JSON.parse(JSON.stringify(l)):{id:uid(),name:'',phone:'',email:'',origin:'WhatsApp direto',stage:'novo',value:'',temp:'warm',owner:state.me?state.me.id:'',next:todayISO(),tags:[],notes:'',history:[],createdAt:todayISO()};
   var opt=function(arr,val,key,lab){return arr.map(function(a,i){var v=key?a[key]:a;var t=lab?a[lab]:a;return '<option value="'+esc(v)+'"'+(String(v)===String(val)?' selected':'')+'>'+esc(t)+'</option>';}).join('');};
   var teamOpts='<option value="">Sem responsável</option>'+state.team.map(function(p){return '<option value="'+p.id+'"'+(p.id===d.owner?' selected':'')+'>'+esc(p.name)+'</option>';}).join('');
   var tl=(d.history||[]).slice().reverse().map(function(h){return '<div class="tl"><i></i><div>'+esc(h.text)+'<small>'+br(h.at)+'</small></div></div>';}).join('')||'<div style="font-size:12.5px;color:var(--ink-faint)">Sem registros ainda.</div>';
@@ -842,7 +842,7 @@ function leadModal(id){
     '<div class="field wide"><label for="fName">Nome</label><input id="fName" value="'+esc(d.name)+'" placeholder="Nome do lead"></div>'+
     '<div class="field"><label for="fPhone">WhatsApp</label><input id="fPhone" inputmode="tel" value="'+esc(d.phone)+'" placeholder="DDD + número"></div>'+
     '<div class="field"><label for="fEmail">E-mail</label><input id="fEmail" type="email" value="'+esc(d.email||'')+'" placeholder="opcional"></div>'+
-    '<div class="field"><label for="fOrigin">Origem</label><select id="fOrigin">'+opt(ORIGENS,d.origin)+'</select></div>'+
+    '<div class="field"><label for="fOrigin">Origem</label><select id="fOrigin">'+opt(d.origin&&ORIGENS.indexOf(d.origin)<0?[d.origin].concat(ORIGENS):ORIGENS,d.origin)+'</select></div>'+
     '<div class="field"><label for="fStage">Etapa</label><select id="fStage">'+opt(STAGES,d.stage,'id','label')+'</select></div>'+
     '<div class="field"><label for="fValue">Valor (R$)</label><input id="fValue" type="number" min="0" step="100" value="'+esc(d.value)+'" placeholder="0"></div>'+
     '<div class="field"><label for="fTemp">Temperatura</label><select id="fTemp">'+opt(TEMPS,d.temp,'id','label')+'</select></div>'+
