@@ -415,7 +415,7 @@ function leadToRow(l){
   return {name:l.name,phone:l.phone,email:l.email,origin:l.origin,stage:l.stage,value:Number(l.value)||0,temp:l.temp,
     owner_id:l.owner||null,next_followup:l.next||null,tags:l.tags||[],notes:l.notes||'',loss_reason:l.lossReason||''};
 }
-var loading=false,reloadAgain=false;
+var loading=false,reloadAgain=false,loadError='';
 function loadAll(){
   if(loading){reloadAgain=true;return Promise.resolve();}
   loading=true;
@@ -431,7 +431,7 @@ function loadAll(){
     var evs={};(res[2].data||[]).forEach(function(e){(evs[e.lead_id]=evs[e.lead_id]||[]).push({at:localDate(e.created_at),text:e.text});});
     state.leads=(res[1].data||[]).map(function(r){return rowToLead(r,evs);});
     if(res[3].data){state.company=res[3].data.company;state.waMsg=res[3].data.wa_msg;}
-  }).catch(function(e){toast('Não foi possível carregar os dados. Verifique a conexão.');console.error(e);})
+  }).then(function(){loadError='';}).catch(function(e){console.error(e);loadError=(e&&(e.message||e.msg||e.error_description||e.code))||String(e);toast('Não foi possível carregar os leads.');})
   .then(function(){loading=false;if(reloadAgain){reloadAgain=false;return loadAll();}if(!document.getElementById('modalRoot').innerHTML)render();else renderSide();});
 }
 var reloadTimer=null;
@@ -571,6 +571,7 @@ function renderTop(){
 }
 
 /* ---------- views ---------- */
+function errBanner(){return loadError?'<div class="banner" style="background:var(--bad-soft)">'+ic('x',18)+'<span class="grow"><b>Não foi possível carregar os leads.</b> Detalhe técnico: <span class="mono">'+esc(loadError)+'</span></span><button class="btn btn-ghost btn-sm" data-reload="1">Tentar de novo</button></div>':'';}
 function vPainel(){
   var act=state.leads.filter(function(l){return !isClosed(l);});
   var won=state.leads.filter(function(l){return l.stage==='ganho';});
@@ -807,7 +808,7 @@ function render(){
   else if(view==='config')html=vConfig();
   else if(LOCKED[view])html=vLocked(view);
   else html=vPainel();
-  v.innerHTML=html;
+  v.innerHTML=errBanner()+html;
   bindDnD();
 }
 
@@ -941,7 +942,7 @@ function bindDnD(){
 function setView(v){view=v;try{history.replaceState(null,'','#'+v);}catch(e){}document.getElementById('side').classList.remove('open');document.getElementById('sideBackdrop').classList.remove('open');render();document.getElementById('view').scrollTop=0;}
 
 document.addEventListener('click',function(e){
-  var t=e.target.closest('[data-nav],[data-lock],[data-lockint],[data-upgrade],[data-newlead],[data-open],[data-close],[data-savelead],[data-delask],[data-delyes],[data-addnote],[data-fstage],[data-range],[data-sort],[data-export],[data-savecfg],[data-renamemember],[data-logout],[data-copy],#themeBtn,#menuBtn,#scrim,[data-wa],a');
+  var t=e.target.closest('[data-nav],[data-lock],[data-lockint],[data-upgrade],[data-newlead],[data-open],[data-close],[data-savelead],[data-delask],[data-delyes],[data-addnote],[data-fstage],[data-reload],[data-range],[data-sort],[data-export],[data-savecfg],[data-renamemember],[data-logout],[data-copy],#themeBtn,#menuBtn,#scrim,[data-wa],a');
   if(!t)return;
   if(t.id==='scrim'){if(e.target===t)closeModal();return;}
   if(t.dataset.wa!==undefined||t.tagName==='A'){
@@ -959,6 +960,7 @@ document.addEventListener('click',function(e){
   if(t.dataset.delask){t.outerHTML='<span style="font-size:12.5px">Excluir de vez?</span><button class="btn btn-danger btn-sm" data-delyes="'+t.dataset.delask+'">Sim, excluir</button>';return;}
   if(t.dataset.delyes){var did=t.dataset.delyes;state.leads=state.leads.filter(function(l){return l.id!==did;});closeModal();commit();sb.from('leads').delete().eq('id',did).then(function(r){if(r.error)return fail(r.error);toast('Lead excluído');});return;}
   if(t.dataset.addnote){var inp=document.getElementById('fNote');var txt=inp.value.trim();if(!txt)return;var ld=state.leads.filter(function(x){return x.id===t.dataset.addnote;})[0];if(!ld)return;logEvent(ld.id,txt);inp.value='';document.getElementById('tl').innerHTML=ld.history.slice().reverse().map(function(h){return '<div class="tl"><i></i><div>'+esc(h.text)+'<small>'+br(h.at)+'</small></div></div>';}).join('');toast('Registrado');return;}
+  if(t.dataset.reload){loadAll();return;}
   if(t.dataset.range){chartDays=+t.dataset.range;render();return;}
   if(t.dataset.fstage){filterStage=t.dataset.fstage;render();return;}
   if(t.dataset.sort){if(sortKey===t.dataset.sort)sortDir=-sortDir;else{sortKey=t.dataset.sort;sortDir=1;}render();return;}

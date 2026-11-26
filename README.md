@@ -4,7 +4,7 @@ CRM comercial da Fábrica: pipeline, leads, follow-ups e botão de WhatsApp, com
 
 ## Como funciona
 - `index.html`: o CRM inteiro (HTML, CSS e JavaScript), publicado pelo GitHub Pages.
-- `vendor/supabase.js`: biblioteca oficial do Supabase (v2.45.4).
+- `vendor/supabase.js`: biblioteca oficial do Supabase (v2.118.0).
 - `supabase/schema.sql`: estrutura do banco. Cole no SQL Editor do Supabase e rode.
 
 ## Usuários
