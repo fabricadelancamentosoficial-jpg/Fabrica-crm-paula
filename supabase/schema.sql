@@ -103,6 +103,14 @@ create policy "equipe le config" on public.settings for select to authenticated 
 drop policy if exists "equipe edita config" on public.settings;
 create policy "equipe edita config" on public.settings for update to authenticated using (true) with check (true);
 
+-- 5b) Permissões das tabelas (projetos novos do Supabase não liberam sozinho)
+grant usage on schema public to authenticated, anon;
+grant select, update on public.profiles to authenticated;
+grant select, insert, update, delete on public.leads to authenticated;
+grant select, insert on public.lead_events to authenticated;
+grant select, update on public.settings to authenticated;
+revoke all on public.profiles, public.leads, public.lead_events, public.settings from anon;
+
 -- 6) Atualização em tempo real (um atendente vê na hora o que o outro mudou)
 do $$
 begin
